@@ -11,8 +11,18 @@ export const APP_FACTORY_TYPES = [
   'job',
   'restful',
   'service',
+  'graphql-server-service',
+  'graphql-client-service',
+  'grpc-server-service',
+  'grpc-client-service',
+  'kafka-server-service',
+  'kafka-client-service',
   'webhook-server-service',
   'webhook-client-service',
+  'webpush-server-service',
+  'webpush-client-service',
+  'websocket-server-service',
+  'websocket-client-service',
 ];
 
 export async function getBootstrap(app: string) {
