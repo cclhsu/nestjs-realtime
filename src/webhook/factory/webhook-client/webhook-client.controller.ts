@@ -25,7 +25,8 @@ export class WebhookClientController implements WebhookClientInterface {
   private logger: Logger = new Logger(WebhookClientController.name);
   constructor(private readonly webhookClientService: WebhookClientService) {}
 
-  // curl -s -X POST -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook-client/register' -d '{}' | jq
+
+  // curl -s -X 'POST' -H 'accept: application/json' -H 'Content-Type: application/json' 'http://0.0.0.0:3002/webhook-client/register' -d '{ "config": { "isActive": true, "secret": "1234567890", "type": "test" }, "expiryDate": "2021-08-31T00:00:00.000Z", "id": "1234567890", "url": "http://0.0.0.0:3002/webhook-client/handle-payload" }' | jq
   @ApiOperation({ summary: 'Register a webhook' })
   @ApiProduces('application/json')
   @ApiBody({
@@ -47,7 +48,7 @@ export class WebhookClientController implements WebhookClientInterface {
     return this.webhookClientService.registerWebhook(webhookData);
   }
 
-  // curl -s -X POST -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook-client/trigger-event' -d '{"id": "1234567890", "type": "test", "data": {"message": "Hello, World!"}}' | jq
+  // curl -s -X POST -H 'Content-Type: application/json' 'http://0.0.0.0:3002/webhook-client/trigger-event' -d '{"id": "1234567890", "type": "test", "data": {"message": "Hello, World!"}}' | jq
   @ApiOperation({ summary: 'Trigger an event' })
   @ApiProduces('application/json')
   @ApiBody({

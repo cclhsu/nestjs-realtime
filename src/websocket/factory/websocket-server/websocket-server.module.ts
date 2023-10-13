@@ -4,11 +4,19 @@
 import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { WebsocketServerService } from './websocket-server.service';
+import { EventsGateway } from './events/events.gateway';
 
 @Module({
-  imports: [HttpModule],
+  imports: [
+    HttpModule,
+    // WebsocketServerModule.configure({
+    //   cors: {
+    //     origin: '*',
+    //   },
+    // }),
+  ],
   controllers: [],
-  providers: [WebsocketServerService],
+  providers: [WebsocketServerService, EventsGateway],
   exports: [WebsocketServerService],
 })
 export class WebsocketServerModule {}

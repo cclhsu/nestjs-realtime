@@ -141,10 +141,20 @@ async function createServer(
     ? ['log', 'fatal', 'error', 'warn', 'debug', 'verbose']
     : ['log', 'fatal', 'error', 'warn'];
 
+
   const app: INestApplication<any> = await NestFactory.create(ServiceModule, {
     httpsOptions: isHttps ? getHttpsOptions(configService) : undefined,
     logger: LOG_LEVEL,
   });
+
+  // app.use(cookieParser());
+
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     whitelist: true,
+  //     transform: true,
+  //   }),
+  // );
 
   // Enable CORS
   app.enableCors({

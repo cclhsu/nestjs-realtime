@@ -1,0 +1,7 @@
+- https://github.com/mokuteki225/nest-websockets-chat-boilerplate
+- https://github.com/makeuseofcode/nestjs-chat-app
+- https://docs.nestjs.com/websockets/gateways
+- https://github.com/nestjs/nest/tree/master/sample/02-gateways
+- https://github.com/nestjs/nest/tree/master/sample/16-gateways-ws
+- https://github.com/idirnaitali/chat-server-with-nestjs-and-websocket
+- https://dev.to/jfrancai/demystifying-nestjs-websocket-gateways-a-step-by-step-guide-to-effective-testing-1a1f

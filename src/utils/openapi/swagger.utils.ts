@@ -5,14 +5,21 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import * as fs from 'fs';
 import * as YAML from 'yaml';
+import {
+  SWAGGER_API_CURRENT_VERSION,
+  SWAGGER_API_DESCRIPTION,
+  SWAGGER_API_NAME,
+  SWAGGER_API_ROOT,
+} from './swagger.constant';
 
 export async function setupSwagger(app: INestApplication, host: string, port: number) {
   // Create options for the Swagger document
   const options = new DocumentBuilder()
     .addBearerAuth()
-    .setTitle('HTTPS API')
-    .setDescription('HTTPS API documentation')
-    .setVersion('1.0')
+    .setTitle(SWAGGER_API_NAME)
+    .setDescription(SWAGGER_API_DESCRIPTION)
+    .setVersion(SWAGGER_API_CURRENT_VERSION)
+    .setContact('name', 'url', 'email')
     .build();
 
   // Generate the Swagger document
@@ -47,7 +54,7 @@ export async function setupSwagger(app: INestApplication, host: string, port: nu
     swaggerDocument: document,
   };
 
-  const dir: string = 'doc/openapi';
+  const dir: string = SWAGGER_API_ROOT;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }

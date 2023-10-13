@@ -4,7 +4,7 @@
 // import { GrpcOptions, Transport } from '@nestjs/microservices';
 // import { addReflectionToGrpcConfig } from 'nestjs-grpc-reflection';
 
-// // grpcurl -plaintext localhost:5000 list
+// // grpcurl -plaintext localhost:5001 list
 // export const grpcOptions: GrpcOptions = addReflectionToGrpcConfig({
 //   transport: Transport.GRPC,
 //   options: {
@@ -19,7 +19,7 @@
 //       './api/grpc/proto/user.proto',
 //       './api/grpc/proto/team.proto',
 //     ],
-//     // url: '0.0.0.0:5000',
+//     // url: '0.0.0.0:5001',
 //   },
 // });
 

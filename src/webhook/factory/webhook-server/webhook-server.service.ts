@@ -121,7 +121,7 @@ export class WebhookServerService implements WebhookServerInterface {
         retries: number = 3,
       ): Promise<void> => {
         try {
-          await axios.post(url, payload, { timeout: 5000 });
+          await axios.post(url, payload, { timeout: 5001 });
         } catch (error) {
           if (retries > 0) {
             // Retry the request after a delay

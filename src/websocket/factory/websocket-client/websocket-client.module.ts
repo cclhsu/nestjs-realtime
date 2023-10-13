@@ -4,10 +4,11 @@
 import { Module } from '@nestjs/common';
 import { WebsocketClientService } from './websocket-client.service';
 import { HttpModule } from '@nestjs/axios';
+import { WebsocketClientController } from './websocket-client.controller';
 
 @Module({
   imports: [HttpModule],
-  controllers: [],
+  controllers: [WebsocketClientController],
   providers: [WebsocketClientService],
   exports: [WebsocketClientService],
 })
