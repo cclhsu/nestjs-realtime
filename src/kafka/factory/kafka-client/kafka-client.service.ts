@@ -1,19 +1,15 @@
 // Path: src/kafka/factory/kafka-client/kafka-client.service.ts
 // DESC: This is the main entry point for the kafka-client application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { KafkaClientInterface } from './kafka-client.interface';
 
 @Injectable()
-export class KafkaClientService implements KafkaClientInterface {
+export class KafkaClientService {
   private logger: Logger = new Logger(KafkaClientService.name);
   // private readonly KafkaServerUrl: string;
-
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('kafka Client initialized');
 

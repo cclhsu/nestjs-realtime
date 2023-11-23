@@ -18,8 +18,8 @@ import { HealthService } from '../../health.service';
 export class HealthController {
   constructor(private readonly healthService: HealthService) {}
 
-  // curl -s -X GET http://0.0.0.0:3001/health/live | jq
-  // curl -s -X GET http://0.0.0.0:3001/health/live?service=cache | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/health/live | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/health/live?service=cache | jq
   @ApiOperation({ summary: 'Check if the service is alive' })
   @ApiProduces('application/json')
   @ApiQuery({
@@ -42,8 +42,8 @@ export class HealthController {
     return this.healthService.isALive(request);
   }
 
-  // curl -s -X GET http://0.0.0.0:3001/health/ready | jq
-  // curl -s -X GET http://0.0.0.0:3001/health/ready?service=cache | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/health/ready | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/health/ready?service=cache | jq
   @ApiOperation({ summary: 'Check if the service is ready' })
   @ApiProduces('application/json')
   @ApiQuery({
@@ -66,8 +66,8 @@ export class HealthController {
     return this.healthService.isReady(request);
   }
 
-  // curl -s -X GET http://0.0.0.0:3001/health/healthy | jq
-  // curl -s -X GET http://0.0.0.0:3001/health/healthy?service=cache | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/health/healthy | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/health/healthy?service=cache | jq
   @ApiOperation({ summary: 'Check if the service is healthy' })
   @ApiProduces('application/json')
   @ApiQuery({

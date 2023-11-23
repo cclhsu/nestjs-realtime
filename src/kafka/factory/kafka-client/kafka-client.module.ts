@@ -3,10 +3,9 @@
 'use strict';
 import { Module } from '@nestjs/common';
 import { KafkaClientService } from './kafka-client.service';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   controllers: [],
   providers: [KafkaClientService],
   exports: [KafkaClientService],

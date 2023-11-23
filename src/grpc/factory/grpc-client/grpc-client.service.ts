@@ -1,19 +1,15 @@
 // Path: src/grpc/factory/grpc-client/grpc-client.service.ts
 // DESC: This is the main entry point for the grpc-client application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GrpcClientInterface } from './grpc-client.interface';
 
 @Injectable()
-export class GrpcClientService implements GrpcClientInterface {
+export class GrpcClientService {
   private logger: Logger = new Logger(GrpcClientService.name);
   // private readonly grpcServerUrl: string;
-
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('Grpc Client initialized');
 

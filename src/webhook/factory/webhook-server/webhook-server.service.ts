@@ -1,33 +1,28 @@
 // Path: src/webhook/factory/webhook-server/webhook-server.service.ts
 // DESC: This is the main entry point for the webhook-server application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios, { AxiosError } from 'axios';
-import { EventDataDTO, WebhookInfoDTO, WebhookRegistrationResponseDTO } from '../../dto';
-import { WebhookServerInterface } from './webhook-server.interface';
-import WebhookType from 'src/webhook/enum/webhook-type.enum';
+import { postRequest } from 'src/utils/api';
+import { MESSAGE_TYPES } from './../../../common/constant';
+import { MessageDTO, RegistrationDTO, RegistrationResponseDTO } from './../../../common/dto';
+import { MessageServiceInterface, RegistrationServiceInterface } from './../../../common/interface';
 
 @Injectable()
-export class WebhookServerService implements WebhookServerInterface {
+export class WebhookServerService implements RegistrationServiceInterface, MessageServiceInterface {
   private logger: Logger = new Logger(WebhookServerService.name);
-  private webhookConfigs: Map<string, WebhookInfoDTO>;
-  private eventDataDTOs: Map<string, EventDataDTO>;
+  private webhookConfigs: Map<string, RegistrationDTO>;
+  private MessageDTOs: Map<string, MessageDTO>;
   private webhookConnections: Map<string, boolean>;
   private webhookDisconnections: Map<string, boolean>;
-
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.logger.log('Webhook Server initialized');
 
     // Create storage for webhook configurations
-    this.webhookConfigs = new Map<string, WebhookInfoDTO>();
+    this.webhookConfigs = new Map<string, RegistrationDTO>();
 
     // Create storage for webhook payloads
-    this.eventDataDTOs = new Map<string, EventDataDTO>();
+    this.MessageDTOs = new Map<string, MessageDTO>();
 
     // Create storage for webhook connections
     this.webhookConnections = new Map<string, boolean>();
@@ -61,137 +56,219 @@ export class WebhookServerService implements WebhookServerInterface {
       Number(process.env.CLIENT_PORT) ||
       this.configService.get<number>('SERVICE_PORT') ||
       3002;
-    return `http://${CLIENT_HOST}:${CLIENT_PORT}/webhook-client/handle-payload`;
+    return `http://${CLIENT_HOST}:${CLIENT_PORT}/webhook-client/receive`;
   }
 
   private initializeWebhookId(): string {
     return this.configService.get<string>('WEBHOOK_ID') || '1234567890';
   }
 
-  registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO> {
-    this.logger.log(`Received webhook registration request: ${JSON.stringify(request)}`);
-    // Implement webhook registration logic here in the webhook server
-    // const webhookUrl = this.initializeWebhookServerUrl();
-    // const webhookId = this.initializeWebhookId();
-
-    // Register webhook
-    this.webhookConfigs.set(request.id, request);
-    this.webhookConnections.set(request.id, true);
-    this.webhookDisconnections.set(request.id, false);
-    return Promise.resolve(
-      new WebhookRegistrationResponseDTO(
-        true,
-        `Webhook ${request.id} registered successfully`,
-        request,
-      ),
-    );
-  }
-
-  async handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO> {
-    this.logger.log(`Received webhook event: ${JSON.stringify(payload)}`);
-
-    // Implement webhook event handling logic here in the webhook server
-    this.eventDataDTOs.set(payload.id, payload);
-
-    const postRequests: Promise<void>[] = [];
-
-    // Loop through webhookConfigs and create an array of promises
-    this.webhookConfigs.forEach((webhookConfigInfo) => {
-      if (webhookConfigInfo.config.type === WebhookType.Exclusive) {
-        if (webhookConfigInfo.config.isActive === false) {
-          return;
-        }
-        if (webhookConfigInfo.id !== payload.id) {
-          return;
-        }
-        if (this.webhookDisconnections.get(webhookConfigInfo.id)) {
-          return;
-        }
+  async register(registration: RegistrationDTO): Promise<RegistrationResponseDTO> {
+    this.logger.log(`Received webhook registration request: ${JSON.stringify(registration)}`);
+    // throw new Error('Method not implemented.');
+    try {
+      if (!registration.UUID || !registration.callbackURL || !registration.type) {
+        this.logger.error('Invalid registration request');
+        throw new Error('Invalid registration request');
       }
 
-      const webhookUrl = webhookConfigInfo.url;
-      this.logger.log(
-        `Sending webhook event to: ${webhookUrl} with payload: ${JSON.stringify(payload)}`,
+      // Check if webhook already registered
+      if (this.webhookConfigs.has(registration.UUID)) {
+        this.logger.error(`Webhook ${registration.UUID} already registered`);
+        throw new Error(`Webhook ${registration.UUID} already registered`);
+      }
+
+      // Register webhook
+      this.webhookConfigs.set(registration.UUID, registration);
+      this.webhookConnections.set(registration.UUID, true);
+      this.webhookDisconnections.set(registration.UUID, false);
+      const successResponse = new RegistrationResponseDTO(
+        'success',
+        '200',
+        `Webhook ${registration.UUID} registered successfully`,
+        registration,
       );
-
-      // Define a function to send the request and handle retries
-      const sendRequest = async (
-        url: string,
-        payload: EventDataDTO,
-        retries: number = 3,
-      ): Promise<void> => {
-        try {
-          await axios.post(url, payload, { timeout: 5001 });
-        } catch (error) {
-          if (retries > 0) {
-            // Retry the request after a delay
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            await sendRequest(url, payload, retries - 1);
-          } else {
-            // No more retries, log the error
-            const axiosError = error as AxiosError;
-            this.logger.error(`Error sending webhook event: ${axiosError.message}`);
-          }
-        }
-      };
-
-      // Create a promise for each post request using sendRequest
-      const postPromise = sendRequest(webhookUrl, payload);
-      postRequests.push(postPromise);
-    });
-
-    // Wait for all post requests to complete
-    await Promise.all(postRequests);
-
-    return new WebhookRegistrationResponseDTO(
-      true,
-      `Webhook event ${payload.id} received successfully`,
-      null,
-    );
+      return Promise.resolve(successResponse);
+    } catch (error: any) {
+      this.logger.error(`Webhook registration error: ${JSON.stringify(error)}`);
+      throw error; // Re-throw the error to handle it at the caller level if needed
+    }
   }
 
-  unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO> {
-    this.logger.log(`Received webhook unregistration request: ${webhookId}`);
+  unregister(registrationID: string): Promise<void> {
+    try {
+      this.logger.log(`Received webhook unregistration request: ${registrationID}`);
 
-    // Implement webhook unregistration logic here in the webhook server
-    this.webhookConfigs.delete(webhookId);
-    this.webhookConnections.delete(webhookId);
-    this.webhookDisconnections.delete(webhookId);
-    return Promise.resolve(
-      new WebhookRegistrationResponseDTO(
-        true,
-        `Webhook ${webhookId} unregistered successfully`,
-        null,
-      ),
-    );
+      // Check if webhook already registered
+      if (!this.webhookConfigs.has(registrationID)) {
+        this.logger.error(`Webhook ${registrationID} not registered`);
+        throw new Error(`Webhook ${registrationID} not registered`);
+      }
+
+      // Unregister webhook
+      this.webhookConfigs.delete(registrationID);
+      this.webhookConnections.delete(registrationID);
+      this.webhookDisconnections.delete(registrationID);
+      return Promise.resolve();
+    } catch (error: any) {
+      this.logger.error(`Webhook unregistration error: ${JSON.stringify(error)}`);
+      throw error; // Re-throw the error to handle it at the caller level if needed
+    }
   }
 
-  listRegisteredWebhooks(): Promise<WebhookInfoDTO[]> {
+  listRegistrations(): Promise<RegistrationDTO[]> {
     this.logger.log(`Received webhook list request`);
+    // throw new Error('Method not implemented.');
 
     // Implement webhook list logic here in the webhook server
-    const webhookList: WebhookInfoDTO[] = [];
+    const webhookList: RegistrationDTO[] = [];
     this.webhookConfigs.forEach((config) => {
-      webhookList.push({
-        id: config.id,
-        url: config.url,
-        expiryDate: config.expiryDate,
-        config: config.config,
-      });
+      webhookList.push(config);
     });
+    this.logger.log(`Webhook list: ${JSON.stringify(webhookList)}`);
     return Promise.resolve(webhookList);
   }
 
-  updateWebhook(
-    webhookId: string,
-    request: WebhookInfoDTO,
-  ): Promise<WebhookRegistrationResponseDTO> {
-    this.logger.log(`Received webhook update request: ${webhookId}`);
+  updateRegistration(
+    registrationID: string,
+    registration: RegistrationDTO,
+  ): Promise<RegistrationResponseDTO> {
+    try {
+      this.logger.log(`Received webhook update request: ${registrationID}`);
 
-    // Implement webhook update logic here in the webhook server
-    this.webhookConfigs.set(webhookId, request);
-    return Promise.resolve(
-      new WebhookRegistrationResponseDTO(true, `Webhook ${webhookId} updated successfully`, null),
-    );
+      // Check if webhook already registered
+      if (!this.webhookConfigs.has(registrationID)) {
+        this.logger.error(`Webhook ${registrationID} not registered`);
+        throw new Error(`Webhook ${registrationID} not registered`);
+      }
+
+      // Update webhook
+      this.webhookConfigs.set(registrationID, registration);
+      const successResponse = new RegistrationResponseDTO(
+        'success',
+        '200',
+        `Webhook ${registrationID} updated successfully`,
+        registration,
+      );
+      return Promise.resolve(successResponse);
+    } catch (error: any) {
+      this.logger.error(`Webhook update error: ${JSON.stringify(error)}`);
+      throw error; // Re-throw the error to handle it at the caller level if needed
+    }
+  }
+
+  send(message: MessageDTO): Promise<void> {
+    try {
+      this.logger.log(`Received webhook send request: ${JSON.stringify(message)}`);
+
+      // // Check if webhook already registered
+      // if (!this.webhookConfigs.has(message.UUID)) {
+      //   this.logger.error(`Webhook ${message.UUID} not registered`);
+      //   throw new Error(`Webhook ${message.UUID} not registered`);
+      // }
+
+      // // Check if webhook is connected
+      // if (!this.webhookConnections.get(message.UUID)) {
+      //   this.logger.error(`Webhook ${message.UUID} not connected`);
+      //   throw new Error(`Webhook ${message.UUID} not connected`);
+      // }
+
+      switch (message.type) {
+        case MESSAGE_TYPES.MESSAGE_TYPES_BROADCAST:
+          return this.broadcast(message);
+          break;
+        case MESSAGE_TYPES.MESSAGE_TYPES_ECHO:
+          return this.echo(message);
+          break;
+        case MESSAGE_TYPES.MESSAGE_TYPES_UNICAST:
+          return this.unicast(message);
+          break;
+        default:
+          this.logger.error(`Invalid message type: ${message.type}`);
+          break;
+      }
+      return Promise.resolve();
+    } catch (error: any) {
+      this.logger.error(`Webhook send error: ${JSON.stringify(error)}`);
+      throw error; // Re-throw the error to handle it at the caller level if needed
+    }
+  }
+
+  receive(message: MessageDTO): Promise<void> {
+    this.logger.log(`Received webhook receive request: ${JSON.stringify(message)}`);
+    throw new Error('Method not implemented.');
+  }
+
+  listMessages(): Promise<MessageDTO[]> {
+    this.logger.log(`Listing messages`);
+    throw new Error('Method not implemented.');
+  }
+
+  private async broadcast(message: MessageDTO): Promise<void> {
+    try {
+      // Implement webhook event handling logic here in the webhook server
+      this.MessageDTOs.set(message.UUID, message);
+
+      // Use map to create an array of promises
+      const postRequests = Array.from(this.webhookConfigs.values()).map((webhookConfig) => {
+        const webhookUrl = webhookConfig.callbackURL;
+        this.logger.verbose(
+          `[broadcast] Sending webhook event to: ${webhookUrl} with payload: ${JSON.stringify(
+            message,
+          )}`,
+        );
+
+        // Use sendRequest directly instead of creating a separate promise
+        const response = postRequest<MessageDTO, MessageDTO>(webhookUrl, message);
+        Promise.resolve(response);
+        return response;
+      });
+
+      // Wait for all post requests to complete
+      await Promise.all(postRequests);
+    } catch (error: any) {
+      this.logger.error(`[broadcast] Webhook error: ${JSON.stringify(error)}`);
+      throw new Error(`[broadcast] Webhook error: ${error.message}`);
+    }
+  }
+
+  private echo(message: MessageDTO): Promise<void> {
+    try {
+      const webhookUrl = this.webhookConfigs.get(message.sender)?.callbackURL;
+      if (!webhookUrl) {
+        this.logger.error(`Webhook ${message.sender} not registered`);
+        throw new Error(`Webhook ${message.sender} not registered`);
+      }
+      this.logger.verbose(
+        `[echo] Sending webhook event to: ${webhookUrl} with payload: ${JSON.stringify(message)}`,
+      );
+      const response = postRequest<void, MessageDTO>(webhookUrl, message);
+      Promise.resolve(response);
+      return Promise.resolve();
+    } catch (error: any) {
+      this.logger.error(`[echo] Webhook error: ${JSON.stringify(error)}`);
+      throw new Error(`[echo] Webhook error: ${error.message}`);
+    }
+  }
+
+  private unicast(message: MessageDTO): Promise<void> {
+    try {
+      const webhookUrl = this.webhookConfigs.get(message.recipient)?.callbackURL;
+      if (!webhookUrl) {
+        this.logger.error(`Webhook ${message.recipient} not registered`);
+        throw new Error(`Webhook ${message.recipient} not registered`);
+      }
+      this.logger.verbose(
+        `[unicast] Sending webhook event to: ${webhookUrl} with payload: ${JSON.stringify(
+          message,
+        )}`,
+      );
+      const response = postRequest<MessageDTO, MessageDTO>(webhookUrl, message);
+      Promise.resolve(response);
+      return Promise.resolve();
+    } catch (error: any) {
+      this.logger.error(`[unicast] Webhook error: ${JSON.stringify(error)}`);
+      throw new Error(`[unicast] Webhook error: ${error.message}`);
+    }
   }
 }

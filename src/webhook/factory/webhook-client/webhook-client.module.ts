@@ -4,10 +4,9 @@
 import { Module } from '@nestjs/common';
 import { WebhookClientController } from './webhook-client.controller';
 import { WebhookClientService } from './webhook-client.service';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   controllers: [WebhookClientController],
   providers: [WebhookClientService],
   exports: [WebhookClientService],

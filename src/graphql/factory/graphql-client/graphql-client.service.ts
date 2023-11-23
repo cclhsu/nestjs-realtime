@@ -1,25 +1,21 @@
 // Path: src/graphql/factory/graphql-client/graphql-client.service.ts
 // DESC: This is the main entry point for the graphql-client application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GraphqlClientInterface } from './graphql-client.interface';
 
 @Injectable()
-export class GraphqlClientService implements GraphqlClientInterface {
-  private logger: Logger = new Logger(GraphqlClientService.name);
-  // private readonly graphqlServerUrl: string;
-
+export class GraphQLClientService {
+  private logger: Logger = new Logger(GraphQLClientService.name);
+  // private readonly graphQLServerUrl: string;
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('graphql Client initialized');
 
     // Initialize graphql server URL
-    // this.graphqlServerUrl = this.initializegraphqlServerUrl();
-    // this.logger.log(`graphql Server URL: ${this.graphqlServerUrl}`);
+    // this.graphQLServerUrl = this.initializeGraphQLServerUrl();
+    // this.logger.log(`graphql Server URL: ${this.graphQLServerUrl}`);
 
     // Register graphql
     // const graphqlData: graphqlInfoDTO = {};
@@ -28,7 +24,7 @@ export class GraphqlClientService implements GraphqlClientInterface {
     // this.registergraphql(graphqlData);
   }
 
-  private initializegraphqlServerUrl(): string {
+  private initializeGraphQLServerUrl(): string {
     const SERVER_HOST: string =
       this.configService.get<string>('SERVER_HOST') ||
       process.env.SERVER_HOST ||

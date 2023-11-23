@@ -10,94 +10,80 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { EventDataDTO, WebhookInfoDTO, WebhookRegistrationResponseDTO } from '../../dto';
-import { WebhookServerInterface } from './webhook-server.interface';
+import {
+  MessageDTO,
+  MessageResponseDTO,
+  RegistrationDTO,
+  RegistrationResponseDTO,
+} from './../../../common/dto';
+import {
+  MessageControllerInterface,
+  RegistrationControllerInterface,
+} from './../../../common/interface';
 import { WebhookServerService } from './webhook-server.service';
 
 @ApiTags('webhook')
 @Controller('webhook')
-export class WebhookServerController implements WebhookServerInterface {
+export class WebhookServerController
+  implements RegistrationControllerInterface, MessageControllerInterface
+{
   private logger: Logger = new Logger(WebhookServerController.name);
   constructor(private readonly webhookServerService: WebhookServerService) {}
 
-  // curl -s -X Post -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook/register' -d '{"webhookId": "1234567890", "webhookUrl": "http://0.0.0.0:3001/webhook-server/handle-payload"}' | jq
-  @ApiOperation({ summary: 'Register a webhook' })
+  // curl -s -X 'POST' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/registration/' -d '{}' | jq
+  @ApiOperation({ summary: 'Register a webhook with the server' })
   @ApiProduces('application/json')
   @ApiBody({
     description: 'Webhook Registration Data',
-    type: WebhookInfoDTO,
+    type: RegistrationDTO,
   })
   @ApiResponse({
     status: 200,
     description: 'Webhook Registration Response',
-    type: WebhookRegistrationResponseDTO,
+    type: RegistrationResponseDTO,
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
     content: { 'application/json': {} },
   })
-  @Post('register')
-  registerWebhook(@Body() request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO> {
-    return this.webhookServerService.registerWebhook(request);
+  @Post('registration')
+  register(@Body() registration: RegistrationDTO): Promise<RegistrationResponseDTO> {
+    this.logger.log(`Registering webhook: ${JSON.stringify(registration)}`);
+    return this.webhookServerService.register(registration);
   }
 
-  // curl -s -X POST -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook/handle-event' -d '{"id": "1234567890", "type": "test", "data": {"message": "Hello, World!"}}' | jq
-  @ApiOperation({ summary: 'Handle webhook event' })
-  @ApiProduces('application/json')
-  @ApiBody({
-    description: 'Webhook Event Data',
-    type: EventDataDTO,
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Webhook Registration Response',
-    type: WebhookRegistrationResponseDTO,
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Internal Server Error',
-    content: { 'application/json': {} },
-  })
-  @Post('handle-event')
-  handleWebhookEvent(@Body() payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO> {
-    return this.webhookServerService.handleWebhookEvent(payload);
-  }
-
-  // curl -s -X DELETE -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook/unregister' -d '{"webhookId": "1234567890"}' | jq
-  @ApiOperation({ summary: 'Unregister a webhook' })
+  // curl -s -X 'DELETE' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/registration/'
+  @ApiOperation({ summary: 'Unregister a webhook with the server' })
   @ApiProduces('application/json')
   @ApiParam({
-    name: 'webhookId',
-    description: 'Webhook ID',
+    name: 'ID',
+    description: 'Webhook Registration ID',
     type: String,
-  })
-  @ApiBody({
-    description: 'Webhook Registration Data',
-    type: WebhookInfoDTO,
   })
   @ApiResponse({
     status: 200,
     description: 'Webhook Registration Response',
-    type: WebhookRegistrationResponseDTO,
+    type: RegistrationResponseDTO,
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
     content: { 'application/json': {} },
   })
-  @Delete('unregister/:webhookId')
-  unregisterWebhook(@Param() webhookId: string): Promise<WebhookRegistrationResponseDTO> {
-    return this.webhookServerService.unregisterWebhook(webhookId);
+  @Delete('registration/:ID')
+  unregister(@Param('ID') registrationID: string): Promise<void> {
+    this.logger.log(`Unregistering webhook: ${registrationID}`);
+    return this.webhookServerService.unregister(registrationID);
   }
 
-  // curl -s -X GET -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook/list' | jq
+  // curl -s -X 'GET' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/registration/'
   @ApiOperation({ summary: 'List registered webhooks' })
   @ApiProduces('application/json')
   @ApiResponse({
     status: 200,
     description: 'List of registered webhooks',
-    type: WebhookInfoDTO,
+    type: RegistrationDTO,
     isArray: true,
   })
   @ApiResponse({
@@ -105,38 +91,106 @@ export class WebhookServerController implements WebhookServerInterface {
     description: 'Internal Server Error',
     content: { 'application/json': {} },
   })
-  @Get('list')
-  listRegisteredWebhooks(): Promise<WebhookInfoDTO[]> {
-    return this.webhookServerService.listRegisteredWebhooks();
+  @Get('registration')
+  listRegistrations(): Promise<RegistrationDTO[]> {
+    this.logger.log(`Listing webhook registrations`);
+    return this.webhookServerService.listRegistrations();
   }
 
-  // curl -s -X PUT -H 'Content-Type: application/json' 'http://0.0.0.0:3001/webhook/update/1234567890' -d '{"webhookId": "1234567890", "webhookUrl": "http://0.0.0.0:3001/webhook-server/handle-payload"}' | jq
-  @ApiOperation({ summary: 'Update a webhook' })
+  // curl -s -X 'PUT' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/'
+  @ApiOperation({ summary: 'Update a webhook registration' })
   @ApiProduces('application/json')
   @ApiParam({
-    name: 'webhookId',
-    description: 'Webhook ID',
+    name: 'ID',
+    description: 'Webhook Registration ID',
     type: String,
   })
   @ApiBody({
     description: 'Webhook Registration Data',
-    type: WebhookInfoDTO,
+    type: RegistrationDTO,
   })
   @ApiResponse({
     status: 200,
     description: 'Webhook Registration Response',
-    type: WebhookRegistrationResponseDTO,
+    type: RegistrationResponseDTO,
   })
   @ApiResponse({
     status: 500,
     description: 'Internal Server Error',
     content: { 'application/json': {} },
   })
-  @Put('update/:webhookId')
-  updateWebhook(
-    @Param() webhookId: string,
-    @Body() request: WebhookInfoDTO,
-  ): Promise<WebhookRegistrationResponseDTO> {
-    return this.webhookServerService.updateWebhook(webhookId, request);
+  @Put('registration/:ID')
+  updateRegistration(
+    @Param('ID') registrationID: string,
+    @Body() registration: RegistrationDTO,
+  ): Promise<RegistrationResponseDTO> {
+    this.logger.log(`Updating webhook: ${registrationID} with ${JSON.stringify(registration)}`);
+    return this.webhookServerService.updateRegistration(registrationID, registration);
+  }
+
+  // curl -s -X 'POST' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/'
+  @ApiOperation({ summary: 'Send a message to a webhook' })
+  @ApiProduces('application/json')
+  @ApiBody({
+    description: 'Message Data',
+    type: MessageDTO,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Message Data Response',
+    type: MessageResponseDTO,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+    content: { 'application/json': {} },
+  })
+  @Post('message/send')
+  send(@Body() message: MessageDTO): Promise<void> {
+    this.logger.log(`Sending message: ${JSON.stringify(message)}`);
+    return this.webhookServerService.send(message);
+  }
+
+  // curl -s -X 'POST' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/'
+  @ApiOperation({ summary: 'Receive a message from a webhook' })
+  @ApiProduces('application/json')
+  @ApiBody({
+    description: 'Message Data',
+    type: MessageDTO,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Message Data Response',
+    type: MessageResponseDTO,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+    content: { 'application/json': {} },
+  })
+  @Post('message/receive')
+  receive(@Body() message: MessageDTO): Promise<void> {
+    this.logger.log(`Receiving message: ${JSON.stringify(message)}`);
+    return this.webhookServerService.receive(message);
+  }
+
+  // curl -s -X 'GET' -H 'Content-Type: application/json' -H 'accept: application/json' 'http://0.0.0.0:3001/webhook/'
+  @ApiOperation({ summary: 'List messages' })
+  @ApiProduces('application/json')
+  @ApiResponse({
+    status: 200,
+    description: 'List of Message Response',
+    type: MessageDTO,
+    isArray: true,
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal Server Error',
+    content: { 'application/json': {} },
+  })
+  @Get('message') // Differentiating the path
+  listMessages(): Promise<MessageDTO[]> {
+    this.logger.log(`Listing messages`);
+    return this.webhookServerService.listMessages();
   }
 }

@@ -23,8 +23,8 @@ export class HelloController {
   // private readonly PrometheusMetricsProvider: PrometheusMetricsProvider,
   constructor(private readonly helloService: HelloService) {}
 
-  // curl -s -X GET http://0.0.0.0:3001/hello/string -w "\n"
-  // curl -s -X GET -H 'accept: application/json' 'http://0.0.0.0:3001/hello/string' -w "\n"
+  // curl -s -X 'GET' http://0.0.0.0:3001/hello/string -w "\n"
+  // curl -s -X 'GET' -H 'accept: application/json' 'http://0.0.0.0:3001/hello/string' -w "\n"
   @ApiOperation({ summary: 'Get Hello String' })
   @ApiProduces('text/plain')
   @ApiResponse({
@@ -44,8 +44,8 @@ export class HelloController {
     return this.helloService.getHelloString();
   }
 
-  // curl -s -X GET http://0.0.0.0:3001/hello/json | jq
-  // curl -s -X GET -H 'accept: application/json' 'http://0.0.0.0:3001/hello/json' | jq
+  // curl -s -X 'GET' http://0.0.0.0:3001/hello/json | jq
+  // curl -s -X 'GET' -H 'accept: application/json' 'http://0.0.0.0:3001/hello/json' | jq
   @ApiOperation({ summary: 'Get Hello JSON' })
   @ApiProduces('application/json')
   @ApiResponse({

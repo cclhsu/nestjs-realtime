@@ -3,10 +3,9 @@
 'use strict';
 import { Module } from '@nestjs/common';
 import { ServerSentEventClientService } from './server-sent-event-client.service';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   controllers: [],
   providers: [ServerSentEventClientService],
   exports: [ServerSentEventClientService],

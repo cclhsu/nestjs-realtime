@@ -3,10 +3,9 @@
 'use strict';
 import { Module } from '@nestjs/common';
 import { WebpushClientService } from './webpush-client.service';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   controllers: [],
   providers: [WebpushClientService],
   exports: [WebpushClientService],

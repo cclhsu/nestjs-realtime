@@ -89,7 +89,7 @@ export async function copyTemplateFile(
   }
 }
 
-// Function to copy template files from template_dir to project_dir
+// Function to copy template files from TEMPLATE_DIR to project_dir
 export async function copyTemplateFilesToProjectDir(
   templateDirPath: string,
   projectDirPath: string,

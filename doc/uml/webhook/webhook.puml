@@ -13,10 +13,10 @@
 ' User --> Service : Register Webhook
 ' Service --> WebhookServer : POST /webhooks
 ' WebhookServer --> Service : 201 Created or Error
-' Service --> WebhookServer : POST /webhooks/{webhook_id}/payloads
+' Service --> WebhookServer : POST /webhooks/{ID}/payloads
 ' WebhookServer --> Service : Deliver Payload
 ' User --> Service : Disconnect Webhook
-' Service --> WebhookServer : DELETE /webhooks/{webhook_id}
+' Service --> WebhookServer : DELETE /webhooks/{ID}
 ' WebhookServer --> Service : 204 No Content or Error
 
 ' @enduml
@@ -26,57 +26,76 @@
 
 package "Webhook Server" as WebhookServer {
     class WebhookServerController {
-        + POST /webhooks: string
-        + POST /webhooks/events: string
-        + DELETE /webhooks/{webhook_id}: string
         + GET /webhooks: string
-        + PUT /webhooks/{webhook_id}: string
+        + POST /webhooks: string (register: RegistrationDTO)
+        + DELETE /webhooks/{ID}: string
+        + PUT /webhooks/{ID}: string (update: RegistrationDTO)
+        + POST /webhooks/{ID}/subscription: string (subscribe: RegistrationDTO)
+        + DELETE /webhooks/{ID}/subscription/{ID}: string (unsubscribe: RegistrationDTO)
+        + POST /webhooks/{ID}/payloads: string (send: MessageDTO)
+        + POST /webhooks: string (receive: MessageDTO)
     }
 
     ' class WebhookServerService {
-    '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-    '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-    '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
-    '     + listRegisteredWebhooks(): Promise<WebhookInfoDTO[]>
-    '     + updateWebhook(webhookId: string, request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
+    '     + listRegistrations(): Promise<RegistrationDTO[]>
+    '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+    '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+    '     + update(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+    '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+    '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+    '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+    '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
     ' }
 
     ' class WebhookServerRepository {
-    '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-    '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-    '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
-    '     + listRegisteredWebhooks(): Promise<WebhookInfoDTO[]>
-    '     + updateWebhook(webhookId: string, request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
+    '     + listRegistrations(): Promise<RegistrationDTO[]>
+    '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+    '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+    '     + update(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+    '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+    '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+    '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+    '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
     ' }
 
-    ' class WebhookInfoDTO {
-    '     + id: string
-    '     + url: string
-    '     + expiryDate: Date
-    '     + config: WebhookConfigDTO
-    ' }
-
-    ' class EventDataDTO {
-    '     + id: string
+    ' class RegistrationDTO {
+    '     + uuid: string
     '     + type: string
-    '     + data: any
-    ' }
-
-    ' class WebhookConfigDTO {
+    '     + stage: string
+    '     + environment: string
+    '     + sender: string
+    '     + timestamp: Date
+    '     + callbackURL: string
+    '     + subscriptions: string[]
+    '     + expires: Date
     '     + secret: string
-    '     + isActive: boolean
-    '     + type: WebhookType
+    '     + state: string
     ' }
 
-    ' class WebhookRegistrationResponseDTO {
+    ' class RegistrationResponseDTO {
     '     + success: boolean
     '     + message: string
     '     + data: any
     ' }
 
-    ' class WebhookType {
-    '     + name: string
-    '     + version: string
+    ' class MessageDTO {
+    '     + uuid: string
+    '     + type: string
+    '     + action: string
+    '     + stage: string
+    '     + environment: string
+    '     + sender: string
+    '     + recipient: string
+    '     + recipients: string[]
+    '     + recipientType: string
+    '     + timestamp: Date
+    '     + data: any
+    ' }
+
+    ' class MessageResponseDTO {
+    '     + success: boolean
+    '     + message: string
+    '     + data: MessageDTO
     ' }
 
     ' WebhookServerController --> WebhookServerService : Register Webhook
@@ -98,24 +117,30 @@ package "Webhook Server" as WebhookServer {
 package "Webhook Clients" as WebhookClients {
     package "Webhook Client 1" as WebhookClient1 {
         class WebhookClient1Controller {
-            + POST /webhook-client/register: string
-            + POST /webhook-client/triggers: string
-            + POST /webhook-client/handle-event: string
-            + POST /webhook-client/disconnect/{webhook_id}: string
+            + POST /webhook-client/register: string (register: RegistrationDTO)
+            + POST /webhook-client/unregister/{ID}: string
+            + POST /webhook-client/subscriptions/{ID}: string (subscribe: RegistrationDTO)
+            + POST /webhook-client/subscriptions/{ID}/{ID}: string (unsubscribe: RegistrationDTO)
+            + POST /webhook-client/send: string (send: MessageDTO)
+            + POST /webhook-client/receive: string (receive: MessageDTO)
         }
 
         ' class WebhookClient1Service {
-        '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + sendWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
+        '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+        '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+        '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+        '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
         ' }
-        
+
         ' class WebhookClient1Repository {
-        '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + sendWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
+        '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+        '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+        '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+        '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
         ' }
 
         ' WebhookClient1Controller --> WebhookClient1Service : Register Webhook
@@ -141,24 +166,30 @@ package "Webhook Clients" as WebhookClients {
 
     package "Webhook Client 2" as WebhookClient2 {
         class WebhookClient2Controller {
-            + POST /webhook-client/register: string
-            + POST /webhook-client/triggers: string
-            + POST /webhook-client/handle-event: string
-            + POST /webhook-client/disconnect/{webhook_id}: string
+            + POST /webhook-client/register: string (register: RegistrationDTO)
+            + POST /webhook-client/unregister/{ID}: string
+            + POST /webhook-client/subscriptions/{ID}: string (subscribe: RegistrationDTO)
+            + POST /webhook-client/subscriptions/{ID}/{ID}: string (unsubscribe: RegistrationDTO)
+            + POST /webhook-client/send: string (send: MessageDTO)
+            + POST /webhook-client/receive: string (receive: MessageDTO)
         }
 
         ' class WebhookClient2Service {
-        '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + sendWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
+        '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+        '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+        '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+        '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
         ' }
-        
+
         ' class WebhookClient2Repository {
-        '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + sendWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
+        '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+        '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+        '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+        '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
         ' }
 
         ' WebhookClient1Controller --> WebhookClient1Service : Register Webhook
@@ -184,24 +215,30 @@ package "Webhook Clients" as WebhookClients {
 
     package "Webhook Client 3" as WebhookClient3 {
         class WebhookClient3Controller {
-            + POST /webhook-client/register: string
-            + POST /webhook-client/triggers: string
-            + POST /webhook-client/handle-event: string
-            + POST /webhook-client/disconnect/{webhook_id}: string
+            + POST /webhook-client/register: string (register: RegistrationDTO)
+            + POST /webhook-client/unregister/{ID}: string
+            + POST /webhook-client/subscriptions/{ID}: string (subscribe: RegistrationDTO)
+            + POST /webhook-client/subscriptions/{ID}/{ID}: string (unsubscribe: RegistrationDTO)
+            + POST /webhook-client/send: string (send: MessageDTO)
+            + POST /webhook-client/receive: string (receive: MessageDTO)
         }
 
         ' class WebhookClient3Service {
-        '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + sendWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
+        '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+        '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+        '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+        '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
         ' }
-        
+
         ' class WebhookClient3Repository {
-        '     + registerWebhook(request: WebhookInfoDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + sendWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + handleWebhookEvent(payload: EventDataDTO): Promise<WebhookRegistrationResponseDTO>
-        '     + unregisterWebhook(webhookId: string): Promise<WebhookRegistrationResponseDTO>
+        '     + register(request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unregister(ID: string): Promise<RegistrationResponseDTO>
+        '     + subscribe(ID: string, request: RegistrationDTO): Promise<RegistrationResponseDTO>
+        '     + unsubscribe(WebhookID: string, SubscriptionID: string): Promise<RegistrationResponseDTO>
+        '     + send(payload: MessageDTO): Promise<RegistrationResponseDTO>
+        '     + receive(payload: MessageDTO): Promise<RegistrationResponseDTO>
         ' }
 
         ' WebhookClient1Controller --> WebhookClient1Service : Register Webhook
@@ -244,7 +281,7 @@ package "Webhook Clients" as WebhookClients {
 
 ' package "Monitoring & Logging" {
 '     class MonitoringService {
-'         + trackWebhookPerformance(webhookId: ID): PerformanceMetrics
+'         + trackWebhookPerformance(ID: ID): PerformanceMetrics
 '     }
 '     class LoggingService {
 '         + logWebhookEvent(eventData: WebhookEvent): void
@@ -270,9 +307,9 @@ WebhookServer --> WebhookClient1 : 201 Created or Error
 WebhookServer --> WebhookClient2 : 201 Created or Error
 WebhookServer --> WebhookClient3 : 201 Created or Error
 
-WebhookClient1 --> WebhookServer : POST /webhooks/{webhook_id}/payloads
-WebhookClient2 --> WebhookServer : POST /webhooks/{webhook_id}/payloads
-WebhookClient3 --> WebhookServer : POST /webhooks/{webhook_id}/payloads
+WebhookClient1 --> WebhookServer : POST /webhooks/{ID}/payloads
+WebhookClient2 --> WebhookServer : POST /webhooks/{ID}/payloads
+WebhookClient3 --> WebhookServer : POST /webhooks/{ID}/payloads
 
 WebhookServer --> WebhookClient1 : Deliver Payload
 WebhookServer --> WebhookClient2 : Deliver Payload

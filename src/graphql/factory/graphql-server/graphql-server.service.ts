@@ -1,23 +1,19 @@
 // Path: src/graphql/factory/graphql-server/graphql-server.service.ts
 // DESC: This is the main entry point for the graphql-server application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GraphqlServerInterface } from './graphql-server.interface';
 
 @Injectable()
-export class GraphqlServerService implements GraphqlServerInterface {
-  private logger: Logger = new Logger(GraphqlServerService.name);
-
+export class GraphQLServerService {
+  private logger: Logger = new Logger(GraphQLServerService.name);
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('graphql Server initialized');
   }
 
-  private initializegraphqlServerUrl(): string {
+  private initializeGraphQLServerUrl(): string {
     const SERVER_HOST: string =
       this.configService.get<string>('SERVER_HOST') ||
       process.env.SERVER_HOST ||

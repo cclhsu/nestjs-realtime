@@ -8,7 +8,7 @@ import G from 'glob';
 //   GIT_PROVIDER_TYPES_GITLAB = 2,
 //   GIT_PROVIDER_TYPES_BITBUCKET = 3,
 //   GIT_PROVIDER_TYPES_LOCAL = 4,
-//   GIT_PROVIDER_TYPES_MYPROJECT = 5,
+//   GIT_PROVIDER_TYPES_MY_PROJECT = 5,
 //   UNRECOGNIZED = -1,
 // }
 
@@ -18,7 +18,7 @@ enum GIT_PROVIDER_TYPES {
   GIT_PROVIDER_TYPES_GITLAB = 'gitlab.com',
   GIT_PROVIDER_TYPES_BITBUCKET = 'bitbucket.org',
   GIT_PROVIDER_TYPES_LOCAL = 'local',
-  GIT_PROVIDER_TYPES_MYPROJECT = 'mypProject',
+  GIT_PROVIDER_TYPES_MY_PROJECT = 'myProject',
 }
 
 // type GIT_PROVIDER_TYPE = keyof typeof GIT_PROVIDER_TYPES;
@@ -58,7 +58,7 @@ enum GIT_PROVIDER_URLS {
   GIT_PROVIDER_TYPES_GITLAB = 'https://gitlab.com',
   GIT_PROVIDER_TYPES_BITBUCKET = 'https://bitbucket.org',
   GIT_PROVIDER_TYPES_LOCAL = 'http://0.0.0.0:3001',
-  GIT_PROVIDER_TYPES_MYPROJECT = 'http://0.0.0.0:3002',
+  GIT_PROVIDER_TYPES_MY_PROJECT = 'http://0.0.0.0:3002',
 }
 
 enum GIT_PROVIDER_API_URLS {
@@ -66,7 +66,7 @@ enum GIT_PROVIDER_API_URLS {
   GIT_PROVIDER_TYPES_GITLAB = 'https://gitlab.com/api/v4',
   GIT_PROVIDER_TYPES_BITBUCKET = 'https://api.bitbucket.org/2.0',
   GIT_PROVIDER_TYPES_LOCAL = 'http://0.0.0.0:3001/api/v1',
-  GIT_PROVIDER_TYPES_MYPROJECT = 'http://0.0.0.0:3002/api/v1',
+  GIT_PROVIDER_TYPES_MY_PROJECT = 'http://0.0.0.0:3002/api/v1',
 }
 
 enum GIT_PROVIDER_BRANCHES_FOR_STAGE {
@@ -147,13 +147,13 @@ export {
 //   | 'gitlab.com'
 //   | 'bitbucket.org'
 //   | 'local'
-//   | 'mypProject';
+//   | 'myProject';
 // export const GIT_PROVIDER_TYPE_ARRAY = [
 //   'github.com',
 //   'gitlab.com',
 //   'bitbucket.org',
 //   'local',
-//   'mypProject',
+//   'myProject',
 // ];
 // export const DEFAULT_GIT_PROVIDER = 'local'; // 'github.com' | 'myProject' | 'local'
 // export enum GIT_PROVIDER_ENUM_KEY_TO_KEY {
@@ -168,14 +168,14 @@ export {
 //   [GIT_PROVIDER_ENUM_KEY_TO_KEY.GITLAB]: 'gitlab.com',
 //   [GIT_PROVIDER_ENUM_KEY_TO_KEY.BITBUCKET]: 'bitbucket.org',
 //   [GIT_PROVIDER_ENUM_KEY_TO_KEY.LOCAL]: 'local',
-//   [GIT_PROVIDER_ENUM_KEY_TO_KEY.MYPROJECT]: 'mypProject',
+//   [GIT_PROVIDER_ENUM_KEY_TO_KEY.MYPROJECT]: 'myProject',
 // };
 
 // export const GIT_PROVIDER_URLS = {
 //   'github.com': 'https://github.com',
 //   'gitlab.com': 'https://gitlab.com',
 //   'bitbucket.com': 'https://bitbucket.org',
-//   mypProject: 'http://0.0.0.0:3001',
+//   myProject: 'http://0.0.0.0:3001',
 //   local: 'http://0.0.0.0:3001',
 // };
 // export const DEFAULT_GIT_PROVIDER_URL = GIT_PROVIDER_URLS[DEFAULT_GIT_PROVIDER];
@@ -184,7 +184,7 @@ export {
 //   'github.com': 'https://api.github.com',
 //   'gitlab.com': 'https://gitlab.com/api/v4',
 //   'bitbucket.org': 'https://api.bitbucket.org/2.0',
-//   mypProject: 'http://0.0.0.0:3001/api/v1',
+//   myProject: 'http://0.0.0.0:3001/api/v1',
 //   local: 'http://0.0.0.0:3001/api/v1',
 // };
 // export const DEFAULT_GIT_PROVIDER_API_URL = GIT_PROVIDER_API_URLS[DEFAULT_GIT_PROVIDER];

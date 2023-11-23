@@ -1,19 +1,15 @@
 // Path: src/server-sent-event/factory/server-sent-event-client/server-sent-event-client.service.ts
 // DESC: This is the main entry point for the server-sent-event-client application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { ServerSentEventClientInterface } from './server-sent-event-client.interface';
 
 @Injectable()
-export class ServerSentEventClientService implements ServerSentEventClientInterface {
+export class ServerSentEventClientService {
   private logger: Logger = new Logger(ServerSentEventClientService.name);
   // private readonly server-sent-eventServerUrl: string;
-
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('ServerSentEvent Client initialized');
 

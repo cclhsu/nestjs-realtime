@@ -1,19 +1,13 @@
 // Path: src/websocket/factory/websocket-server/websocket-server.service.ts
 // DESC: This is the main entry point for the websocket-server application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { WebsocketServerInterface } from './websocket-server.interface';
 
 @Injectable()
-export class WebsocketServerService implements WebsocketServerInterface {
+export class WebsocketServerService {
   private logger: Logger = new Logger(WebsocketServerService.name);
-
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
+  constructor(private readonly configService: ConfigService) {
     this.logger.log('Websocket Server initialized');
   }
 

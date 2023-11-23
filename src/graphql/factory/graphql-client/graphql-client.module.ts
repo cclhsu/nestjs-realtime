@@ -2,13 +2,12 @@
 // DESC: This is the main entry point for the graphql-client application.
 'use strict';
 import { Module } from '@nestjs/common';
-import { GraphqlClientService } from './graphql-client.service';
-import { HttpModule } from '@nestjs/axios';
+import { GraphQLClientService } from './graphql-client.service';
 
 @Module({
-  imports: [HttpModule],
+  imports: [],
   controllers: [],
-  providers: [GraphqlClientService],
-  exports: [GraphqlClientService],
+  providers: [GraphQLClientService],
+  exports: [GraphQLClientService],
 })
-export class GraphqlClientModule {}
+export class GraphQLClientModule {}

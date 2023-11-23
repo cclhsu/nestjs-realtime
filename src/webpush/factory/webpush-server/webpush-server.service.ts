@@ -1,18 +1,14 @@
 // Path: src/webpush/factory/webpush-server/webpush-server.service.ts
 // DESC: This is the main entry point for the webpush-server application.
 'use strict';
-import { HttpService } from '@nestjs/axios';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { WebpushServerInterface } from './webpush-server.interface';
 
 @Injectable()
-export class WebpushServerService implements WebpushServerInterface {
+export class WebpushServerService {
   private logger: Logger = new Logger(WebpushServerService.name);
-
   constructor(
-    private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
+    private readonly configService: ConfigService
   ) {
     this.logger.log('Webpush Server initialized');
   }
