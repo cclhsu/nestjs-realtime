@@ -4,13 +4,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Socket, io } from 'socket.io-client';
-import {
-  MessageControllerInterface,
-  ConnectionControllerInterface,
-} from './../../../common/interface';
-import { MessageDTO } from 'src/common/dto';
-import { response } from 'express';
-import { MESSAGE_TYPES } from 'src/common/constant';
+import { MESSAGE_TYPES } from './../../../common/constant';
+import { MessageDTO } from './../../../common/dto';
+import { MessageControllerInterface } from './../../../common/interface';
 
 @Injectable()
 export class WebsocketClientService implements MessageControllerInterface {

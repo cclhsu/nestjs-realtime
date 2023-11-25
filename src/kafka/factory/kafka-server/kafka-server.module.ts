@@ -2,11 +2,12 @@
 // DESC: This is the main entry point for the kafka-server application.
 'use strict';
 import { Module } from '@nestjs/common';
+import { KafkaServerController } from './kafka-server.controller';
 import { KafkaServerService } from './kafka-server.service';
 
 @Module({
   imports: [],
-  controllers: [],
+  controllers: [KafkaServerController],
   providers: [KafkaServerService],
   exports: [KafkaServerService],
 })

@@ -2,7 +2,7 @@
   "compilerOptions": {
     // Language and module settings
     "target": "es2021",
-    "target": "ESNext",
+    "module": "commonjs",
     // "module": "ESNext",
 
     // Type checking and strict mode

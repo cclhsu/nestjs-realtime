@@ -2,11 +2,12 @@
 // DESC: This is the main entry point for the kafka-client application.
 'use strict';
 import { Module } from '@nestjs/common';
+import { KafkaClientController } from './kafka-client.controller';
 import { KafkaClientService } from './kafka-client.service';
 
 @Module({
   imports: [],
-  controllers: [],
+  controllers: [KafkaClientController],
   providers: [KafkaClientService],
   exports: [KafkaClientService],
 })

@@ -17,6 +17,8 @@ export const APP_FACTORY_TYPES = [
   'grpc-client-service',
   'kafka-producer-service',
   'kafka-consumer-service',
+  'redis-producer-service',
+  'redis-consumer-service',
   'webhook-server-service',
   'webhook-client-service',
   'webpush-server-service',

@@ -9,5 +9,9 @@ import { RedisClientService } from './redis-client.service';
 @Controller('redis')
 export class RedisClientController {
   private logger: Logger = new Logger(RedisClientController.name);
-  constructor(private readonly redisClientService: RedisClientService) {}
+  constructor(private readonly redisClientService: RedisClientService) {
+    // this.redisClientService.consume(async (message) => {
+    //   await this.logger.log(`Received message from Redis: ${JSON.stringify(message)}`);
+    // });
+  }
 }

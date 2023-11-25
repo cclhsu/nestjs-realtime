@@ -9,5 +9,9 @@ import { KafkaClientService } from './kafka-client.service';
 @Controller('kafka')
 export class KafkaClientController {
   private logger: Logger = new Logger(KafkaClientController.name);
-  constructor(private readonly kafkaClientService: KafkaClientService) {}
+  constructor(private readonly kafkaClientService: KafkaClientService) {
+    // this.kafkaClientService.consume(async (message) => {
+    //   await this.logger.log(`Received message from Kafka: ${JSON.stringify(message)}`);
+    // });
+  }
 }

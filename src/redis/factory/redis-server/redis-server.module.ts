@@ -2,11 +2,12 @@
 // DESC: This is the main entry point for the redis-server application.
 'use strict';
 import { Module } from '@nestjs/common';
+import { RedisServerController } from './redis-server.controller';
 import { RedisServerService } from './redis-server.service';
 
 @Module({
   imports: [],
-  controllers: [],
+  controllers: [RedisServerController],
   providers: [RedisServerService],
   exports: [RedisServerService],
 })
